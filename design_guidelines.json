@@ -1,0 +1,138 @@
+{
+  "theme": "dark",
+  "archetype": "Archetype 2: The Performance Pro (Tactical Minimalism)",
+  "global_design_principles": [
+    "Fusion over Imitation: Blend military/tactical UI elements with modern SaaS data density.",
+    "Emotion First: The UI must convey an atmosphere of high-alert, command-center precision.",
+    "Contrast & Hierarchy: Use 1px sharp strokes and intense vibrant accents (Red/Blue/Green) against deep obsidian space to direct attention to threats.",
+    "Density: Utilize the 'Control Room' grid. Every pixel matters. High data density using monospaced fonts for technical data."
+  ],
+  "colors": {
+    "background": {
+      "app": "#0A0A0A",
+      "surface": "#121212",
+      "surface_hover": "#1C1C1E",
+      "surface_active": "#2C2C2E"
+    },
+    "border": {
+      "default": "rgba(255, 255, 255, 0.1)",
+      "focus": "rgba(0, 122, 255, 0.5)",
+      "technical": "#1A1A1C"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#8A8A8E",
+      "tertiary": "#636366",
+      "inverse": "#000000"
+    },
+    "status": {
+      "primary_scan": "#007AFF",
+      "danger_spy_cam": "#FF3B30",
+      "warning_unknown": "#FFCC00",
+      "safe_verified": "#34C759"
+    },
+    "rules": [
+      "Never use pure black #000000. Anchor on #0A0A0A (Deep Obsidian).",
+      "Ensure text contrast ratios meet 4.5:1 against surfaces.",
+      "Use explicit hover states: hover:bg-[#1C1C1E] hover:text-white.",
+      "Status colors must be highly saturated to pop against the dark theme."
+    ]
+  },
+  "typography": {
+    "fonts": {
+      "headings": "'Chivo', sans-serif",
+      "body": "'IBM Plex Sans', sans-serif",
+      "mono_data": "'JetBrains Mono', monospace"
+    },
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl font-black tracking-tighter leading-none",
+      "h2": "text-2xl sm:text-3xl font-bold tracking-tight",
+      "h3": "text-xl sm:text-2xl font-bold tracking-tight",
+      "h4": "text-lg sm:text-xl font-semibold tracking-tight",
+      "body": "text-sm sm:text-base leading-relaxed",
+      "data_label": "text-xs font-mono uppercase tracking-[0.2em] text-[#8A8A8E]",
+      "data_value": "text-sm sm:text-base font-mono font-medium"
+    },
+    "rules": [
+      "Do NOT use Inter, Roboto, or Space Grotesk for headings.",
+      "All IP addresses, MAC addresses, port numbers, and timestamps MUST use the mono_data font.",
+      "Overlines and labels must be uppercase with wide spacing (tracking-[0.2em])."
+    ]
+  },
+  "layout_spacing": {
+    "grid_system": {
+      "mode": "MODE B: THE CONTROL ROOM GRID",
+      "base": "grid-cols-1 md:grid-cols-3 lg:grid-cols-4",
+      "gap": "gap-4 md:gap-6",
+      "widgets": {
+        "summary_metric": "col-span-1",
+        "primary_table": "col-span-1 md:col-span-3 lg:col-span-4 row-span-2",
+        "details_panel": "col-span-1 md:col-span-1 lg:col-span-1 h-full"
+      }
+    },
+    "surfaces": {
+      "strategy": "Grid Borders (The 'Technical' Look) + Retro-Futurism",
+      "styling": "Flat backgrounds (bg-[#121212]), max rounded-lg (8px radius) or sharp corners, 1px solid borders (border-white/10).",
+      "shadows": "Replace soft drop shadows with 1px solid strokes or subtle inner glows. No soft neumorphic shadows."
+    },
+    "spacing_scale": "Tailwind standard, but lean into density. p-4 to p-6 for widget internals, p-6 to p-8 for main layout containers. Always include padding inside bordered containers to avoid text collision."
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#007AFF] text-white font-bold hover:bg-[#0056B3] transition-colors rounded-md px-6 py-2",
+      "danger": "bg-[#FF3B30] text-white font-bold hover:bg-[#CC2F26] transition-colors rounded-md px-6 py-2",
+      "outline": "bg-transparent border border-white/20 text-white hover:bg-white/5 transition-colors rounded-md px-6 py-2"
+    },
+    "cards_widgets": "border border-white/10 bg-[#121212] rounded-lg overflow-hidden flex flex-col h-full",
+    "tables": "Dense layout. Header rows bordered bottom (border-white/10). Row hover states (hover:bg-white/5). Use Shadcn Table but customize padding to py-2 px-3 for high density.",
+    "badges": "Sharp corners or rounded-sm. High contrast. Danger: bg-red-500/20 text-red-400 border border-red-500/50. Safe: bg-green-500/20 text-green-400 border border-green-500/50.",
+    "inputs": "bg-[#0A0A0A] border border-white/20 text-white focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF] rounded-md px-3 py-2"
+  },
+  "motion_interactions": {
+    "hover": "Translate-y-[-1px] or border color intensify. Always explicitly declare text colors on hover.",
+    "radar_scan": "Use framer-motion to create a sweeping gradient line or pulsing rings for the active scanning state.",
+    "list_entrance": "Staggered fade-in and slide-up for devices as they are 'discovered' in the network.",
+    "accessibility": "Respect prefers-reduced-motion. Animations must be purposeful, not distracting."
+  },
+  "icons_assets": {
+    "library": "@phosphor-icons/react",
+    "rules": "Use duotone or regular weights. Keep icon sizes consistent (16px for inline, 20px-24px for actions, 32px+ for metrics)."
+  },
+  "media": {
+    "images": [
+      {
+        "url": "https://static.prod-images.emergentagent.com/jobs/c7245c82-ccf9-4bf2-bf49-04a3b6415698/images/643b1bc210ba1956c7b2c9a131875eeeb22cea576158a57a7f228a0149b35908.png",
+        "category": "empty_state",
+        "description": "Minimalist glowing radar illustration for zero-state or active scanning modal."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1762163516269-3c143e04175c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwxfHxzZXJ2ZXIlMjByYWNrJTIwZGFya3xlbnwwfHx8fDE3NzYzMzM4OTV8MA&ixlib=rb-4.1.0&q=85",
+        "category": "background_texture",
+        "description": "Dark server rack background to be used with a heavy opacity overlay (bg-black/80) on the login/landing screen."
+      }
+    ]
+  },
+  "testing": {
+    "rules": "All interactive and key informational elements MUST include a data-testid attribute in kebab-case."
+  },
+  "instructions_to_main_agent": {
+    "setup": [
+      "Install required fonts from Google Fonts: 'Chivo', 'IBM Plex Sans', 'JetBrains Mono'. Update tailwind.config.js to include these font families.",
+      "Install dependencies: `yarn add @phosphor-icons/react framer-motion recharts clsx tailwind-merge`.",
+      "Initialize Shadcn components: table, badge, card, progress, dialog, sheet, button, input."
+    ],
+    "implementation": [
+      "Structure the app as a Dashboard: Sidebar Navigation + Top Header (Network Interface Selector) + Main Content Area.",
+      "Main Dashboard View: Include a 'Start Scan' hero action, surrounded by summary metrics (Devices Found, High Risk, Suspicious Ports).",
+      "Network Discovery Table: List devices with IP, MAC, Vendor, Open Ports, Risk Score, and Status. Make rows clickable to open a Device Details side sheet.",
+      "Camera Detection Logic (Mocked): When 'Start Scan' is clicked, mock a scanning process over 5 seconds. Gradually populate the table with devices. Specifically mock some devices with RTSP Port 554 and Web Ports 80/8080 to trigger the 'Spy Camera' flag.",
+      "Risk Score System: Display the 0-100 score visually using a colored Progress bar or circular chart.",
+      "Device Details Panel: Display full port analysis and vulnerability flags in a high-density, terminal-like layout."
+    ],
+    "restrictions": [
+      "Do NOT use transparent backgrounds for the header over scrolling content.",
+      "Do NOT use Shadcn Card heavily if a flat, border-only grid layout achieves a better 'Control Room' feel.",
+      "Always mock the scanning data dynamically so the UI can be tested and demonstrated."
+    ]
+  }
+}
