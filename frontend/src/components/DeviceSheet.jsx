@@ -63,6 +63,7 @@ export default function DeviceSheet({ device, open, onClose }) {
   if (!device) return null;
 
   const risk = getRiskLevel(device.risk_score);
+  const services = device.services || [];
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
@@ -125,6 +126,7 @@ export default function DeviceSheet({ device, open, onClose }) {
               { label: "Model", value: device.model || "Unknown" },
               { label: "Hostname", value: device.hostname || "N/A" },
               { label: "Device Type", value: device.device_type },
+              { label: "Scan Engine", value: device.scan_engine || "tcp-connect" },
             ].map((row) => (
               <div key={row.label} className="flex items-center justify-between py-2 border-b border-white/5">
                 <span className="text-xs text-[#636366] uppercase tracking-wider">{row.label}</span>
@@ -144,6 +146,45 @@ export default function DeviceSheet({ device, open, onClose }) {
               ))}
             </div>
           </div>
+
+          {services.length > 0 && (
+            <div className="mt-6">
+              <h4 className="text-xs font-mono uppercase tracking-[0.2em] text-[#8A8A8E] mb-3">
+                Service Fingerprints
+              </h4>
+              <div className="space-y-2">
+                {services.map((service) => (
+                  <div key={`${service.port}-${service.service}`} className="p-3 rounded-md bg-app border border-white/10">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <Badge className="rounded-sm text-[10px] px-1.5 py-0 font-mono bg-white/5 border border-white/10 text-white">
+                          {service.port}/tcp
+                        </Badge>
+                        <span className="text-sm text-white font-medium">{service.service}</span>
+                      </div>
+                      {service.product && (
+                        <span className="text-xs text-[#8A8A8E] font-mono">{service.product}</span>
+                      )}
+                    </div>
+                    {service.banner && (
+                      <div className="mt-2 text-xs text-[#8A8A8E] font-mono break-words">
+                        {service.banner}
+                      </div>
+                    )}
+                    {service.notes?.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {service.notes.map((note) => (
+                          <div key={note} className="text-[11px] text-[#636366] font-mono">
+                            {note}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Risk Factors */}
           {device.risk_factors?.length > 0 && (

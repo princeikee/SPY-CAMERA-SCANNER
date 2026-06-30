@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import {
@@ -12,7 +11,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"}/api`;
 
 function formatDate(iso) {
   return new Date(iso).toLocaleString("en-US", {
@@ -30,7 +29,11 @@ export default function ScanHistory() {
 
   const fetchScans = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API}/scans`);
+      const response = await fetch(`${API}/scans`);
+      if (!response.ok) {
+        throw new Error(`Scans request failed with ${response.status}`);
+      }
+      const data = await response.json();
       setScans(data);
     } catch (err) {
       toast.error("Failed to load scan history");
@@ -44,7 +47,12 @@ export default function ScanHistory() {
   const deleteScan = async () => {
     if (!deleteId) return;
     try {
-      await axios.delete(`${API}/scans/${deleteId}`);
+      const response = await fetch(`${API}/scans/${deleteId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error(`Delete request failed with ${response.status}`);
+      }
       setScans((prev) => prev.filter((s) => s.id !== deleteId));
       toast.success("Scan deleted");
     } catch {
@@ -60,7 +68,11 @@ export default function ScanHistory() {
       return;
     }
     try {
-      const { data } = await axios.get(`${API}/scans/${id}`);
+      const response = await fetch(`${API}/scans/${id}`);
+      if (!response.ok) {
+        throw new Error(`Scan detail request failed with ${response.status}`);
+      }
+      const data = await response.json();
       setExpandedScan(data);
       setExpandedId(id);
     } catch {
@@ -70,7 +82,11 @@ export default function ScanHistory() {
 
   const exportScan = async (id) => {
     try {
-      const { data } = await axios.get(`${API}/scans/${id}/export`);
+      const response = await fetch(`${API}/scans/${id}/export`);
+      if (!response.ok) {
+        throw new Error(`Export request failed with ${response.status}`);
+      }
+      const data = await response.json();
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");

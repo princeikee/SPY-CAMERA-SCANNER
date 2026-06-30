@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -15,7 +14,7 @@ import {
   DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"}/api`;
 
 export default function Dashboard() {
   const [scanning, setScanning] = useState(false);
@@ -29,7 +28,11 @@ export default function Dashboard() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API}/stats`);
+      const response = await fetch(`${API}/stats`, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`Stats request failed with ${response.status}`);
+      }
+      const data = await response.json();
       setStats(data);
     } catch (err) {
       console.error("Failed to fetch stats:", err);
@@ -40,44 +43,77 @@ export default function Dashboard() {
     fetchStats();
   }, [fetchStats]);
 
+  useEffect(() => {
+    if (!scanning || !currentScan?.id) return undefined;
+
+    const pollScan = async () => {
+      try {
+        const response = await fetch(`${API}/scans/${currentScan.id}?t=${Date.now()}`, {
+          cache: "no-store",
+        });
+        if (!response.ok) {
+          throw new Error(`Scan poll failed with ${response.status}`);
+        }
+        const data = await response.json();
+        setCurrentScan(data);
+        setScanProgress(data.progress || 0);
+
+        if (data.status === "completed") {
+          setScanning(false);
+          fetchStats();
+          const cams = data.cameras_found;
+          if (cams > 0) {
+            toast.error(`${cams} potential camera${cams > 1 ? "s" : ""} detected!`, {
+              description: "Review flagged devices for suspicious activity.",
+            });
+          } else {
+            toast.success("Scan complete - no cameras detected", {
+              description: `${data.total_devices} devices found on network.`,
+            });
+          }
+        }
+
+        if (data.status === "failed") {
+          setScanning(false);
+          toast.error("Scan failed", {
+            description: data.logs?.[data.logs.length - 1] || "The backend scan job failed.",
+          });
+        }
+      } catch (err) {
+        setScanning(false);
+        toast.error("Scan failed", { description: err.message });
+      }
+    };
+
+    pollScan();
+    const interval = setInterval(pollScan, 1000);
+    return () => clearInterval(interval);
+  }, [currentScan?.id, fetchStats, scanning]);
+
   const startScan = async () => {
     setScanning(true);
     setScanProgress(0);
     setCurrentScan(null);
 
-    // Simulate progress
-    const interval = setInterval(() => {
-      setScanProgress((p) => {
-        if (p >= 95) return 95;
-        return p + Math.floor(Math.random() * 15) + 5;
-      });
-    }, 300);
-
     try {
-      const { data } = await axios.post(`${API}/scans/start`, {
-        subnet,
-        interface: "eth0",
+      const response = await fetch(`${API}/scans/start`, {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          subnet,
+          interface: "eth0",
+        }),
       });
-      clearInterval(interval);
-      setScanProgress(100);
-
-      setTimeout(() => {
-        setCurrentScan(data);
-        setScanning(false);
-        fetchStats();
-        const cams = data.cameras_found;
-        if (cams > 0) {
-          toast.error(`${cams} potential camera${cams > 1 ? "s" : ""} detected!`, {
-            description: "Review flagged devices for suspicious activity.",
-          });
-        } else {
-          toast.success("Scan complete - no cameras detected", {
-            description: `${data.total_devices} devices found on network.`,
-          });
-        }
-      }, 500);
+      if (!response.ok) {
+        throw new Error(`Scan request failed with ${response.status}`);
+      }
+      const data = await response.json();
+      setCurrentScan(data);
+      setScanProgress(data.progress || 0);
     } catch (err) {
-      clearInterval(interval);
       setScanning(false);
       toast.error("Scan failed", { description: err.message });
     }
@@ -86,7 +122,11 @@ export default function Dashboard() {
   const exportScan = async () => {
     if (!currentScan) return;
     try {
-      const { data } = await axios.get(`${API}/scans/${currentScan.id}/export`);
+      const response = await fetch(`${API}/scans/${currentScan.id}/export`);
+      if (!response.ok) {
+        throw new Error(`Export request failed with ${response.status}`);
+      }
+      const data = await response.json();
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -198,8 +238,22 @@ export default function Dashboard() {
               Scanning network {subnet}...
             </p>
             <p className="text-xs text-[#636366] mt-1 font-mono">
-              Probing ports 80, 443, 554, 8080, 8000, 37777...
+              {currentScan?.scan_engine === "nmap"
+                ? "Running nmap service detection..."
+                : "Probing ports and collecting live fingerprints..."}
             </p>
+            <div className="w-full max-w-2xl mt-8 border border-white/10 bg-app/80 rounded-lg overflow-hidden">
+              <div className="px-4 py-2 border-b border-white/10 text-xs font-mono uppercase tracking-[0.2em] text-[#8A8A8E]">
+                Live Scan Logs
+              </div>
+              <div className="max-h-56 overflow-y-auto px-4 py-3 space-y-2 text-left">
+                {(currentScan?.logs?.length ? currentScan.logs : ["Waiting for first backend event..."]).map((line, index) => (
+                  <div key={`${line}-${index}`} className="text-xs font-mono text-[#C7C7CC] break-words">
+                    {line}
+                  </div>
+                ))}
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
