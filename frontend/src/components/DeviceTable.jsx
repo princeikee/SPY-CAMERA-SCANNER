@@ -34,12 +34,82 @@ function getTypeBadge(type) {
   return "bg-white/5 border border-white/10 text-[#8A8A8E]";
 }
 
+function PortPills({ ports = [] }) {
+  return (
+    <div className="flex flex-wrap gap-1">
+      {ports.slice(0, 4).map((port) => (
+        <span
+          key={port}
+          className={`font-mono text-[11px] px-1.5 py-0.5 rounded-sm ${
+            port === 554
+              ? "bg-danger/20 text-danger"
+              : [80, 8080, 8000, 88].includes(port)
+              ? "bg-warning/20 text-warning"
+              : "bg-white/5 text-[#636366]"
+          }`}
+        >
+          {port}
+        </span>
+      ))}
+      {ports.length > 4 && (
+        <span className="font-mono text-[11px] text-[#636366]">
+          +{ports.length - 4}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function DeviceTable({ devices = [], onDeviceClick }) {
   if (!devices.length) return null;
 
   return (
     <div data-testid="device-table" className="border border-white/10 bg-surface rounded-lg overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="divide-y divide-white/5 md:hidden">
+        {devices.map((device, i) => (
+          <motion.button
+            key={device.id}
+            type="button"
+            data-testid={`device-card-${i}`}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.05 }}
+            onClick={() => onDeviceClick?.(device)}
+            className="block w-full p-4 text-left transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-scan/70"
+            aria-label={`Open details for ${device.ip}`}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  {getTypeIcon(device.device_type)}
+                  <span className="font-mono text-base text-white">{device.ip}</span>
+                </div>
+                <p className="mt-1 break-all font-mono text-xs text-[#636366]">
+                  {device.mac}
+                </p>
+              </div>
+              <Badge className={`shrink-0 rounded-sm text-[10px] px-2 py-0.5 font-mono ${getRiskBg(device.risk_score)}`}>
+                {device.risk_score}
+              </Badge>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Badge className={`rounded-sm text-[11px] px-2 py-0.5 font-mono ${getTypeBadge(device.device_type)}`}>
+                {device.device_type}
+              </Badge>
+              <span className="min-w-0 truncate text-xs text-[#8A8A8E]">
+                {device.vendor}
+              </span>
+            </div>
+
+            <div className="mt-3">
+              <PortPills ports={device.open_ports} />
+            </div>
+          </motion.button>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto md:block">
         <Table>
           <TableHeader>
             <TableRow className="border-b border-white/10 hover:bg-transparent">
@@ -61,7 +131,14 @@ export default function DeviceTable({ devices = [], onDeviceClick }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
                 onClick={() => onDeviceClick?.(device)}
-                className="border-b border-white/5 hover:bg-white/[0.03] cursor-pointer transition-colors group"
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onDeviceClick?.(device);
+                  }
+                }}
+                tabIndex={0}
+                className="border-b border-white/5 hover:bg-white/[0.03] cursor-pointer transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-scan/70"
               >
                 <TableCell className="py-3 px-4">
                   <div className="flex items-center gap-2">
@@ -78,27 +155,7 @@ export default function DeviceTable({ devices = [], onDeviceClick }) {
                   <span className="text-sm text-[#8A8A8E]">{device.vendor}</span>
                 </TableCell>
                 <TableCell className="py-3 px-4">
-                  <div className="flex flex-wrap gap-1">
-                    {device.open_ports.slice(0, 4).map((port) => (
-                      <span
-                        key={port}
-                        className={`font-mono text-[11px] px-1.5 py-0.5 rounded-sm ${
-                          port === 554
-                            ? "bg-danger/20 text-danger"
-                            : [80, 8080, 8000, 88].includes(port)
-                            ? "bg-warning/20 text-warning"
-                            : "bg-white/5 text-[#636366]"
-                        }`}
-                      >
-                        {port}
-                      </span>
-                    ))}
-                    {device.open_ports.length > 4 && (
-                      <span className="font-mono text-[11px] text-[#636366]">
-                        +{device.open_ports.length - 4}
-                      </span>
-                    )}
-                  </div>
+                  <PortPills ports={device.open_ports} />
                 </TableCell>
                 <TableCell className="py-3 px-4">
                   <Badge className={`rounded-sm text-[11px] px-2 py-0.5 font-mono ${getTypeBadge(device.device_type)}`}>

@@ -3,7 +3,7 @@ import { ShieldWarning } from "@phosphor-icons/react";
 
 export default function ScanAnimation({ progress = 0 }) {
   return (
-    <div data-testid="scan-animation" className="relative w-48 h-48 mx-auto">
+    <div data-testid="scan-animation" className="relative w-36 h-36 mx-auto sm:w-48 sm:h-48">
       {/* Outer ring */}
       <div className="absolute inset-0 rounded-full border-2 border-scan/20" />
 

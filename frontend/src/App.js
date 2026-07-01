@@ -8,10 +8,10 @@ import Sidebar from "@/components/Sidebar";
 function App() {
   return (
     <BrowserRouter>
-      <div className="flex min-h-screen bg-app">
+      <div className="relative flex min-h-dvh bg-app pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:pb-0">
         <div className="noise-overlay" />
         <Sidebar />
-        <main className="flex-1 ml-16 lg:ml-56">
+        <main className="flex-1 min-w-0 md:ml-16 lg:ml-56">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/history" element={<ScanHistory />} />

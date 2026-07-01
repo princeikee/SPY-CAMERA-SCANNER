@@ -51,10 +51,10 @@ function PortItem({ port }) {
   };
 
   return (
-    <div className={`flex items-center gap-2 px-3 py-2 rounded-md border ${riskColors[info.risk]}`}>
+    <div className={`flex min-w-0 items-center gap-2 rounded-md border px-3 py-2 ${riskColors[info.risk]}`}>
       <info.icon size={14} weight="duotone" />
       <span className="font-mono text-xs">{port}</span>
-      <span className="text-[10px] uppercase tracking-wider opacity-70">{info.name}</span>
+      <span className="min-w-0 truncate text-[10px] uppercase tracking-wider opacity-70">{info.name}</span>
     </div>
   );
 }
@@ -69,9 +69,9 @@ export default function DeviceSheet({ device, open, onClose }) {
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-md bg-surface border-l border-white/10 overflow-y-auto p-0"
+        className="w-full max-h-dvh overflow-y-auto border-l border-white/10 bg-surface p-0 sm:max-w-md"
       >
-        <div className="p-6">
+        <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-6">
           <SheetHeader>
             <div className="flex items-center gap-3 mb-1">
               {device.device_type.includes("Camera") ? (
@@ -128,9 +128,9 @@ export default function DeviceSheet({ device, open, onClose }) {
               { label: "Device Type", value: device.device_type },
               { label: "Scan Engine", value: device.scan_engine || "tcp-connect" },
             ].map((row) => (
-              <div key={row.label} className="flex items-center justify-between py-2 border-b border-white/5">
+              <div key={row.label} className="grid grid-cols-1 gap-1 border-b border-white/5 py-2 sm:grid-cols-[auto,1fr] sm:items-center">
                 <span className="text-xs text-[#636366] uppercase tracking-wider">{row.label}</span>
-                <span className={`text-sm text-white ${row.mono ? "font-mono" : ""}`}>{row.value}</span>
+                <span className={`min-w-0 break-words text-sm text-white sm:text-right ${row.mono ? "font-mono break-all" : ""}`}>{row.value}</span>
               </div>
             ))}
           </div>
@@ -140,7 +140,7 @@ export default function DeviceSheet({ device, open, onClose }) {
             <h4 className="text-xs font-mono uppercase tracking-[0.2em] text-[#8A8A8E] mb-3">
               Open Ports ({device.open_ports.length})
             </h4>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2">
               {device.open_ports.map((port) => (
                 <PortItem key={port} port={port} />
               ))}
@@ -155,15 +155,15 @@ export default function DeviceSheet({ device, open, onClose }) {
               <div className="space-y-2">
                 {services.map((service) => (
                   <div key={`${service.port}-${service.service}`} className="p-3 rounded-md bg-app border border-white/10">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                      <div className="flex min-w-0 items-center gap-2">
                         <Badge className="rounded-sm text-[10px] px-1.5 py-0 font-mono bg-white/5 border border-white/10 text-white">
                           {service.port}/tcp
                         </Badge>
-                        <span className="text-sm text-white font-medium">{service.service}</span>
+                        <span className="min-w-0 truncate text-sm font-medium text-white">{service.service}</span>
                       </div>
                       {service.product && (
-                        <span className="text-xs text-[#8A8A8E] font-mono">{service.product}</span>
+                        <span className="break-all text-xs text-[#8A8A8E] font-mono">{service.product}</span>
                       )}
                     </div>
                     {service.banner && (
@@ -205,7 +205,7 @@ export default function DeviceSheet({ device, open, onClose }) {
 
           {/* Timestamps */}
           <div className="mt-6 pt-4 border-t border-white/5">
-            <div className="flex justify-between text-xs text-[#636366]">
+            <div className="flex flex-col gap-1 text-xs text-[#636366] sm:flex-row sm:justify-between">
               <span>First Seen</span>
               <span className="font-mono">
                 {new Date(device.first_seen).toLocaleString()}

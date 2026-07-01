@@ -9,12 +9,11 @@ import MetricCard from "@/components/MetricCard";
 import DeviceTable from "@/components/DeviceTable";
 import DeviceSheet from "@/components/DeviceSheet";
 import ScanAnimation from "@/components/ScanAnimation";
+import { API_URL } from "@/lib/api";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-
-const API = `${process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"}/api`;
 
 export default function Dashboard() {
   const [scanning, setScanning] = useState(false);
@@ -28,7 +27,7 @@ export default function Dashboard() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await fetch(`${API}/stats`, { cache: "no-store" });
+      const response = await fetch(`${API_URL}/stats`, { cache: "no-store" });
       if (!response.ok) {
         throw new Error(`Stats request failed with ${response.status}`);
       }
@@ -48,7 +47,7 @@ export default function Dashboard() {
 
     const pollScan = async () => {
       try {
-        const response = await fetch(`${API}/scans/${currentScan.id}?t=${Date.now()}`, {
+        const response = await fetch(`${API_URL}/scans/${currentScan.id}?t=${Date.now()}`, {
           cache: "no-store",
         });
         if (!response.ok) {
@@ -96,7 +95,7 @@ export default function Dashboard() {
     setCurrentScan(null);
 
     try {
-      const response = await fetch(`${API}/scans/start`, {
+      const response = await fetch(`${API_URL}/scans/start`, {
         method: "POST",
         cache: "no-store",
         headers: {
@@ -122,7 +121,7 @@ export default function Dashboard() {
   const exportScan = async () => {
     if (!currentScan) return;
     try {
-      const response = await fetch(`${API}/scans/${currentScan.id}/export`);
+      const response = await fetch(`${API_URL}/scans/${currentScan.id}/export`);
       if (!response.ok) {
         throw new Error(`Export request failed with ${response.status}`);
       }
@@ -164,10 +163,10 @@ export default function Dashboard() {
     : { total: 0, cameras: 0, highRisk: 0, safe: 0 };
 
   return (
-    <div data-testid="dashboard" className="min-h-screen p-4 md:p-6 lg:p-8">
+    <div data-testid="dashboard" className="min-h-screen w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
+        <div className="min-w-0">
           <h1 className="font-heading font-black text-2xl sm:text-3xl tracking-tight text-white">
             Network Scanner
           </h1>
@@ -175,27 +174,29 @@ export default function Dashboard() {
             Detect hidden cameras & surveillance devices on your network
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
           {/* Subnet input */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-app border border-white/10 rounded-md">
+          <label className="flex min-h-11 w-full items-center gap-2 rounded-md border border-white/10 bg-app px-3 py-2 sm:w-auto">
             <span className="text-xs font-mono text-[#636366]">SUBNET</span>
             <input
               data-testid="subnet-input"
               type="text"
               value={subnet}
               onChange={(e) => setSubnet(e.target.value)}
-              className="bg-transparent text-white font-mono text-sm w-36 focus:outline-none"
+              inputMode="text"
+              autoComplete="off"
+              className="min-w-0 flex-1 bg-transparent text-white font-mono text-base sm:w-36 sm:text-sm focus:outline-none"
             />
-          </div>
+          </label>
 
           {currentScan && (
             <button
               data-testid="export-btn"
               onClick={exportScan}
-              className="flex items-center gap-2 px-4 py-2 bg-transparent border border-white/20 text-white hover:bg-white/5 transition-colors rounded-md text-sm font-medium"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-md border border-white/20 bg-transparent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/5 sm:w-auto"
             >
               <Export size={16} weight="duotone" />
-              <span className="hidden sm:inline">Export</span>
+              <span>Export</span>
             </button>
           )}
 
@@ -203,7 +204,7 @@ export default function Dashboard() {
             data-testid="start-scan-btn"
             onClick={startScan}
             disabled={scanning}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-md text-sm font-bold transition-all ${
+            className={`flex min-h-11 w-full items-center justify-center gap-2 rounded-md px-6 py-2.5 text-sm font-bold transition-all sm:w-auto ${
               scanning
                 ? "bg-scan/20 text-scan cursor-wait animate-glow-pulse"
                 : "bg-scan text-white hover:bg-[#0056B3]"
@@ -231,13 +232,13 @@ export default function Dashboard() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="flex flex-col items-center justify-center py-16 mb-8 border border-white/10 bg-surface rounded-lg"
+            className="flex flex-col items-center justify-center rounded-lg border border-white/10 bg-surface px-4 py-10 mb-8 sm:py-16"
           >
             <ScanAnimation progress={scanProgress} />
-            <p className="text-sm text-[#8A8A8E] mt-12 font-mono">
+            <p className="text-center text-sm text-[#8A8A8E] mt-12 font-mono break-all">
               Scanning network {subnet}...
             </p>
-            <p className="text-xs text-[#636366] mt-1 font-mono">
+            <p className="text-center text-xs text-[#636366] mt-1 font-mono">
               {currentScan?.scan_engine === "nmap"
                 ? "Running nmap service detection..."
                 : "Probing ports and collecting live fingerprints..."}
@@ -260,7 +261,7 @@ export default function Dashboard() {
 
       {/* Metrics Grid */}
       {!scanning && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <MetricCard
             icon={Devices}
             label="Devices Found"
@@ -300,7 +301,7 @@ export default function Dashboard() {
       {!scanning && currentScan && (
         <div>
           {/* Table Header */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
             <h2 className="font-heading font-bold text-lg text-white">
               Discovered Devices
             </h2>
@@ -309,7 +310,7 @@ export default function Dashboard() {
                 <DropdownMenuTrigger asChild>
                   <button
                     data-testid="filter-dropdown"
-                    className="flex items-center gap-2 px-3 py-2 text-xs font-mono uppercase tracking-wider bg-transparent border border-white/10 text-[#8A8A8E] rounded-md hover:border-white/20 hover:text-white transition-colors"
+                    className="flex min-h-11 w-full items-center justify-center gap-2 rounded-md border border-white/10 bg-transparent px-3 py-2 text-xs font-mono uppercase tracking-wider text-[#8A8A8E] transition-colors hover:border-white/20 hover:text-white sm:w-auto"
                   >
                     <Funnel size={14} weight="duotone" />
                     {filter === "all" ? "All Devices" :
@@ -379,7 +380,7 @@ export default function Dashboard() {
           <button
             data-testid="empty-state-scan-btn"
             onClick={startScan}
-            className="flex items-center gap-2 px-6 py-2.5 bg-scan text-white rounded-md text-sm font-bold hover:bg-[#0056B3] transition-colors"
+            className="flex min-h-11 items-center gap-2 rounded-md bg-scan px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#0056B3]"
           >
             <Crosshair size={18} weight="duotone" />
             Begin Network Scan

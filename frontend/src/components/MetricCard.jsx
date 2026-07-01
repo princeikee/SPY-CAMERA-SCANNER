@@ -15,17 +15,17 @@ export default function MetricCard({ icon: Icon, label, value, color = "scan", d
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
-      className={`border border-white/10 bg-surface rounded-lg p-5 flex flex-col gap-3 hover:border-white/20 transition-colors`}
+      className="border border-white/10 bg-surface rounded-lg p-4 sm:p-5 flex flex-col gap-3 hover:border-white/20 transition-colors"
     >
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#8A8A8E]">
+      <div className="flex items-start justify-between gap-3">
+        <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.16em] sm:tracking-[0.2em] text-[#8A8A8E] leading-relaxed">
           {label}
         </span>
         <div className={`w-8 h-8 rounded-md ${c.bg} flex items-center justify-center`}>
           <Icon size={18} weight="duotone" className={c.text} />
         </div>
       </div>
-      <div className={`text-3xl font-heading font-black ${c.text} tracking-tight`}>
+      <div className={`text-2xl sm:text-3xl font-heading font-black ${c.text} tracking-tight`}>
         {value}
       </div>
     </motion.div>

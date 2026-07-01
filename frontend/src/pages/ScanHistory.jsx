@@ -6,12 +6,11 @@ import {
   Devices, VideoCamera, ShieldWarning, Calendar,
 } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
+import { API_URL } from "@/lib/api";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-
-const API = `${process.env.REACT_APP_BACKEND_URL || "http://localhost:8000"}/api`;
 
 function formatDate(iso) {
   return new Date(iso).toLocaleString("en-US", {
@@ -29,7 +28,7 @@ export default function ScanHistory() {
 
   const fetchScans = useCallback(async () => {
     try {
-      const response = await fetch(`${API}/scans`);
+      const response = await fetch(`${API_URL}/scans`);
       if (!response.ok) {
         throw new Error(`Scans request failed with ${response.status}`);
       }
@@ -47,7 +46,7 @@ export default function ScanHistory() {
   const deleteScan = async () => {
     if (!deleteId) return;
     try {
-      const response = await fetch(`${API}/scans/${deleteId}`, {
+      const response = await fetch(`${API_URL}/scans/${deleteId}`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -68,7 +67,7 @@ export default function ScanHistory() {
       return;
     }
     try {
-      const response = await fetch(`${API}/scans/${id}`);
+      const response = await fetch(`${API_URL}/scans/${id}`);
       if (!response.ok) {
         throw new Error(`Scan detail request failed with ${response.status}`);
       }
@@ -82,7 +81,7 @@ export default function ScanHistory() {
 
   const exportScan = async (id) => {
     try {
-      const response = await fetch(`${API}/scans/${id}/export`);
+      const response = await fetch(`${API_URL}/scans/${id}/export`);
       if (!response.ok) {
         throw new Error(`Export request failed with ${response.status}`);
       }
@@ -101,7 +100,7 @@ export default function ScanHistory() {
   };
 
   return (
-    <div data-testid="scan-history-page" className="min-h-screen p-4 md:p-6 lg:p-8">
+    <div data-testid="scan-history-page" className="min-h-screen w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -139,19 +138,19 @@ export default function ScanHistory() {
                 className="border border-white/10 bg-surface rounded-lg overflow-hidden"
               >
                 {/* Scan Header Row */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-3">
-                  <div className="flex items-center gap-4">
+                <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 items-start gap-3 sm:items-center sm:gap-4">
                     <div className="w-10 h-10 rounded-md bg-scan/10 flex items-center justify-center flex-shrink-0">
                       <Devices size={20} weight="duotone" className="text-scan" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm text-white">{scan.subnet}</span>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="break-all font-mono text-sm text-white">{scan.subnet}</span>
                         <Badge className="rounded-sm text-[10px] px-1.5 py-0 font-mono bg-scan/20 border border-scan/30 text-scan">
                           {scan.status}
                         </Badge>
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-[#636366]">
+                      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#636366]">
                         <span className="flex items-center gap-1 font-mono">
                           <Calendar size={12} />
                           {formatDate(scan.started_at)}
@@ -175,11 +174,11 @@ export default function ScanHistory() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center">
                     <button
                       data-testid={`view-scan-${i}`}
                       onClick={() => viewScan(scan.id)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-[#8A8A8E] hover:text-white hover:bg-white/5 border border-white/10 rounded-md transition-colors"
+                      className="flex min-h-11 items-center justify-center gap-1.5 rounded-md border border-white/10 px-3 py-2 text-xs font-mono text-[#8A8A8E] transition-colors hover:bg-white/5 hover:text-white"
                     >
                       <Eye size={14} />
                       {expandedId === scan.id ? "Hide" : "View"}
@@ -187,16 +186,20 @@ export default function ScanHistory() {
                     <button
                       data-testid={`export-scan-${i}`}
                       onClick={() => exportScan(scan.id)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-[#8A8A8E] hover:text-white hover:bg-white/5 border border-white/10 rounded-md transition-colors"
+                      className="flex min-h-11 items-center justify-center gap-1.5 rounded-md border border-white/10 px-3 py-2 text-xs font-mono text-[#8A8A8E] transition-colors hover:bg-white/5 hover:text-white"
+                      aria-label={`Export scan ${scan.subnet}`}
                     >
                       <Export size={14} />
+                      <span>Export</span>
                     </button>
                     <button
                       data-testid={`delete-scan-${i}`}
                       onClick={() => setDeleteId(scan.id)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono text-danger/70 hover:text-danger hover:bg-danger/5 border border-white/10 rounded-md transition-colors"
+                      className="flex min-h-11 items-center justify-center gap-1.5 rounded-md border border-white/10 px-3 py-2 text-xs font-mono text-danger/70 transition-colors hover:bg-danger/5 hover:text-danger"
+                      aria-label={`Delete scan ${scan.subnet}`}
                     >
                       <Trash size={14} />
+                      <span>Delete</span>
                     </button>
                   </div>
                 </div>
@@ -208,19 +211,19 @@ export default function ScanHistory() {
                     animate={{ height: "auto", opacity: 1 }}
                     className="border-t border-white/10"
                   >
-                    <div className="p-4 max-h-64 overflow-y-auto">
+                    <div className="p-3 sm:p-4 max-h-72 overflow-y-auto">
                       <div className="space-y-1">
                         {expandedScan.devices.map((d, j) => (
                           <div
                             key={d.id}
-                            className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-white/[0.03] transition-colors"
+                            className="flex flex-col gap-2 rounded-md px-3 py-3 transition-colors hover:bg-white/[0.03] sm:flex-row sm:items-center sm:justify-between"
                           >
-                            <div className="flex items-center gap-3">
-                              <span className="font-mono text-xs text-white w-28">{d.ip}</span>
-                              <span className="font-mono text-[11px] text-[#636366] w-36 hidden md:block">{d.mac}</span>
-                              <span className="text-xs text-[#8A8A8E] w-24 hidden lg:block">{d.vendor}</span>
+                            <div className="min-w-0 flex flex-wrap items-center gap-x-3 gap-y-1">
+                              <span className="font-mono text-xs text-white">{d.ip}</span>
+                              <span className="break-all font-mono text-[11px] text-[#636366]">{d.mac}</span>
+                              <span className="text-xs text-[#8A8A8E]">{d.vendor}</span>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center justify-between gap-3 sm:justify-end">
                               <Badge className={`rounded-sm text-[10px] px-1.5 py-0 font-mono ${
                                 d.device_type.includes("Camera")
                                   ? "bg-danger/20 border border-danger/50 text-danger"
@@ -261,14 +264,14 @@ export default function ScanHistory() {
             <button
               data-testid="cancel-delete-btn"
               onClick={() => setDeleteId(null)}
-              className="px-4 py-2 text-sm border border-white/20 text-white rounded-md hover:bg-white/5 transition-colors"
+              className="min-h-11 px-4 py-2 text-sm border border-white/20 text-white rounded-md hover:bg-white/5 transition-colors"
             >
               Cancel
             </button>
             <button
               data-testid="confirm-delete-btn"
               onClick={deleteScan}
-              className="px-4 py-2 text-sm bg-danger text-white rounded-md font-bold hover:bg-[#CC2F26] transition-colors"
+              className="min-h-11 px-4 py-2 text-sm bg-danger text-white rounded-md font-bold hover:bg-[#CC2F26] transition-colors"
             >
               Delete
             </button>
